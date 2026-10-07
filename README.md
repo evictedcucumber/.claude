@@ -48,11 +48,10 @@ The main session runs on Opus 5.5 as planner and reviewer. Sonnet 5.5 subagents 
 
 ### Project subagents
 
-Subagents a project defines in `<project>/.claude/agents/` are always available to the orchestrator and to the global agents:
+Subagents a project defines in `<project>/.claude/agents/` show up in the orchestrator's Agent tool list automatically:
 
-- The orchestrator checks the project's `.claude/agents/` at the start of a task, uses a project agent directly when it fits, and names relevant project agents in its briefs.
-- Each global agent has a "Project subagents" section. It lists the project's agents itself (the closest definition of a name wins) and delegates matching parts of its task to them. Read-only agents only delegate work that doesn't modify files.
-- `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=2` allows orchestrator → global agent → project agent, and stops nesting beyond that.
+- The orchestrator calls a project agent directly whenever it fits a step, and splits a step that spans a project agent and a global one.
+- `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` stops subagents from spawning their own subagents. Every result reaches Opus in one hop, so the orchestrator reviews raw output instead of a summary of a summary.
 - A project agent with the same name as a global one (for example, `code-reviewer`) replaces it in that project.
 
 To skip orchestration for one session, switch the output style back to Default or pick another model with `/model`.
