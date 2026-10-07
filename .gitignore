@@ -37,6 +37,8 @@ id_rsa*
 id_ed25519*
 .env.*
 *.token
+# Broad name patterns: these also hide legitimate config such as skills/secret-scan/ or
+# agents/credential-auditor.md. To track one, add a `!path` rule after this block.
 *secret*
 *credential*
 *.log
