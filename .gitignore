@@ -1,0 +1,42 @@
+# Allowlist approach: ignore everything, then re-include only config worth sharing.
+# This keeps transcripts, credentials, and caches out of the repo by default.
+*
+
+# Config
+!.gitignore
+!README.md
+!settings.json
+!keybindings.json
+!CLAUDE.md
+!statusline*
+!.claude/
+!.claude/CLAUDE.md
+
+# Customizations
+!agents/
+!agents/**
+!commands/
+!commands/**
+!skills/
+!skills/**
+!hooks/
+!hooks/**
+!output-styles/
+!output-styles/**
+
+# Never commit, even if re-included above
+.credentials.json
+settings.local.json
+.env
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.env.*
+*.token
+*secret*
+*credential*
+*.log
+.mcp.json
