@@ -4,7 +4,7 @@ description: External research. Use to look up library, framework, API, or tool 
 model: claude-sonnet-5-5
 effort: medium
 maxTurns: 30
-disallowedTools: Edit, Write, NotebookEdit
+tools: WebSearch, WebFetch, Read, Grep, Glob
 color: blue
 ---
 
