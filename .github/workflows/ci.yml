@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shellcheck
+        run: shellcheck hooks/*.sh statusline.sh
+      - name: Read-only hook tests
+        run: hooks/test-readonly-bash.sh
+      - name: Validate settings.json
+        run: |
+          pipx run check-jsonschema==0.38.0 \
+            --schemafile https://json.schemastore.org/claude-code-settings.json \
+            settings.json

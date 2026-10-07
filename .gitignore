@@ -12,6 +12,9 @@
 !statusline*
 !.claude/
 !.claude/CLAUDE.md
+!.github/
+!.github/workflows/
+!.github/workflows/*.yml
 
 # Customizations
 !agents/
