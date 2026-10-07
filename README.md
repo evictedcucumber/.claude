@@ -44,17 +44,10 @@ The main session runs on Opus 5.5 as planner and reviewer. Sonnet 5.5 subagents 
 
 - Every agent starts its report with a `STATUS: done | partial | blocked` line, which the orchestrator checks first. Agents that edit files don't commit, push, or switch branches unless the brief says so. Parallel writers need disjoint files or a worktree.
 - The orchestrator delegates by the shape of the work (self-contained steps that return a summary) and does small steps inline, while always doing review itself.
-- `modelSettings` sets Sonnet 5.5 to medium effort by default and caps it at high, for every Sonnet subagent (including built-ins and project agents that don't set `effort`).
+- `modelSettings` runs Opus 5.5 at high effort, since planning and review need the deepest reasoning (Opus otherwise defaults to medium, the same as the workers). Try `xhigh` if planning quality matters more than speed.
+- `modelSettings` also sets Sonnet 5.5 to medium effort by default and caps it at high, for every Sonnet subagent (including built-ins and any agent that doesn't set `effort`).
 - `CLAUDE_CODE_SUBAGENT_MODEL` sends custom subagents that don't set a `model` to Sonnet 5.5. Agents that set a `model` keep it.
-
-### Project subagents
-
-Subagents a project defines in `<project>/.claude/agents/` are always available to the orchestrator and to the global agents:
-
-- The orchestrator checks the project's `.claude/agents/` at the start of a task, uses a project agent directly when it fits, and names relevant project agents in its briefs.
-- Each global agent has a "Project subagents" section. It lists the project's agents itself (the closest definition of a name wins) and delegates matching parts of its task to them. Read-only agents only delegate work that doesn't modify files.
-- `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=2` allows orchestrator → global agent → project agent, and stops nesting beyond that.
-- A project agent with the same name as a global one (for example, `code-reviewer`) replaces it in that project.
+- `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` stops subagents from spawning their own subagents. Every result reaches Opus in one hop, so the orchestrator reviews raw output instead of a summary of a summary.
 
 To skip orchestration for one session, switch the output style back to Default or pick another model with `/model`.
 
