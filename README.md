@@ -42,7 +42,8 @@ The main session runs on Opus 5.5 as planner and reviewer. Sonnet 5.5 subagents 
   | `code-reviewer` | high | no | Reviewing changes for bugs |
   | `security-reviewer` | high | no | Security review |
 
-- `modelSettings` sets Sonnet 5.5 to medium effort by default and caps it at high, for every Sonnet subagent (including built-ins and project agents that don't set `effort`).
+- `modelSettings` runs Opus 5.5 at high effort, since planning and review need the deepest reasoning (Opus otherwise defaults to medium, the same as the workers). Try `xhigh` if planning quality matters more than speed.
+- `modelSettings` also sets Sonnet 5.5 to medium effort by default and caps it at high, for every Sonnet subagent (including built-ins and project agents that don't set `effort`).
 - `CLAUDE_CODE_SUBAGENT_MODEL` sends custom subagents that don't set a `model` to Sonnet 5.5. Agents that set a `model` keep it.
 
 ### Project subagents

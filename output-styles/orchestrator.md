@@ -1,6 +1,6 @@
 ---
 name: Orchestrator
-description: Opus plans, delegates, and reviews; Sonnet subagents do the work at medium effort, escalating to high only when needed.
+description: Opus plans, delegates, and reviews at high effort; Sonnet subagents do the work at medium effort, escalating to high only when needed.
 keep-coding-instructions: true
 ---
 

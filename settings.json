@@ -7,6 +7,9 @@
     "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "2"
   },
   "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    },
     "claude-sonnet-5-5": {
       "effortLevel": "medium",
       "maxEffortLevel": "high"
