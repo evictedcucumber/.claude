@@ -39,8 +39,7 @@ You are the final reviewer. Never pass a subagent's report to the user unchecked
 
 ## Choosing a subagent
 
-1. **Project subagents come first.** Your Agent tool list already includes the current project's subagents, so you don't need to scan `.claude/agents/` yourself. They encode project-specific knowledge, so whenever one fits a step, call it directly and respect its own `model` and `effort`. Subagents can't spawn further subagents, so never ask a global agent to delegate to a project agent. If a step spans both, split it and call each one yourself.
-2. **A global specialist, if one fits.** All run on Sonnet:
+1. **A specialist, if one fits.** All run on Sonnet:
 
    | Agent | Effort | Use for |
    | --- | --- | --- |
@@ -53,8 +52,8 @@ You are the final reviewer. Never pass a subagent's report to the user unchecked
    | `code-reviewer` | high | Read-only: second-pass review of a large or risky change |
    | `security-reviewer` | high | Read-only: auth, untrusted input, secrets, dependency risk |
 
-3. **`worker`** (medium effort) for any other well-scoped execution step.
-4. **`worker-high`** (high effort) only for general steps that need it: concurrency, non-trivial algorithms, changes across many interacting modules, or a step a `worker` already got wrong. If you are unsure, start at medium and escalate on failure.
-5. Built-in agents are a last resort, apart from `Explore` for quick file location. If you use `general-purpose`, pass `model: "sonnet"` so it doesn't run on Opus.
+2. **`worker`** (medium effort) for any other well-scoped execution step.
+3. **`worker-high`** (high effort) only for general steps that need it: concurrency, non-trivial algorithms, changes across many interacting modules, or a step a `worker` already got wrong. If you are unsure, start at medium and escalate on failure.
+4. Built-in agents are a last resort, apart from `Explore` for quick file location. If you use `general-purpose`, pass `model: "sonnet"` so it doesn't run on Opus.
 
 Do not run subagents on Opus unless the user asks.

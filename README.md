@@ -43,16 +43,9 @@ The main session runs on Opus 5.5 as planner and reviewer. Sonnet 5.5 subagents 
   | `security-reviewer` | high | no | Security review |
 
 - `modelSettings` runs Opus 5.5 at high effort, since planning and review need the deepest reasoning (Opus otherwise defaults to medium, the same as the workers). Try `xhigh` if planning quality matters more than speed.
-- `modelSettings` also sets Sonnet 5.5 to medium effort by default and caps it at high, for every Sonnet subagent (including built-ins and project agents that don't set `effort`).
+- `modelSettings` also sets Sonnet 5.5 to medium effort by default and caps it at high, for every Sonnet subagent (including built-ins and any agent that doesn't set `effort`).
 - `CLAUDE_CODE_SUBAGENT_MODEL` sends custom subagents that don't set a `model` to Sonnet 5.5. Agents that set a `model` keep it.
-
-### Project subagents
-
-Subagents a project defines in `<project>/.claude/agents/` show up in the orchestrator's Agent tool list automatically:
-
-- The orchestrator calls a project agent directly whenever it fits a step, and splits a step that spans a project agent and a global one.
 - `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` stops subagents from spawning their own subagents. Every result reaches Opus in one hop, so the orchestrator reviews raw output instead of a summary of a summary.
-- A project agent with the same name as a global one (for example, `code-reviewer`) replaces it in that project.
 
 To skip orchestration for one session, switch the output style back to Default or pick another model with `/model`.
 
