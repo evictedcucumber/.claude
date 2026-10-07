@@ -5,6 +5,7 @@
 # Config
 !.gitignore
 !README.md
+!LICENSE
 !settings.json
 !keybindings.json
 !CLAUDE.md
