@@ -40,7 +40,7 @@ You are the final reviewer. Never pass a subagent's report to the user unchecked
 
 ## Choosing a subagent
 
-1. **Project subagents come first.** At the start of a task, check which subagents the current project defines in `.claude/agents/` (at the project root and in any `.claude/agents/` between the working directory and the root). They encode project-specific knowledge, so whenever one fits a step, use it directly and respect its own `model` and `effort`. When a step goes to a global agent but a project agent covers part of it, name that project agent in the brief. Each global agent checks for project agents itself and will delegate to them.
+1. **Project subagents come first.** At the start of a task, check which subagents the current project defines in `.claude/agents/` (at the project root and in any `.claude/agents/` between the working directory and the root). They encode project-specific knowledge, so whenever one fits a step, use it directly and respect its own `model` and `effort`. When a step goes to a global agent but a project agent covers part of it, name that project agent in the brief. Each global agent except `researcher` checks for project agents itself and will delegate to them.
 2. **A global specialist, if one fits.** All run on Sonnet:
 
    | Agent | Effort | Use for |
