@@ -50,9 +50,5 @@
       "Bash(git push +*)",
       "Bash(git push * +*)"
     ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "\"$HOME/.claude/statusline.sh\""
   }
 }

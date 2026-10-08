@@ -13,10 +13,10 @@ If `~/.claude` already exists, clone elsewhere and copy the tracked files over, 
 If you copy files instead of cloning, keep the scripts executable. A hook that can't run is a non-blocking error, so a non-executable `readonly-bash.sh` silently turns the read-only restriction off:
 
 ```bash
-chmod +x ~/.claude/hooks/*.sh ~/.claude/statusline.sh && ~/.claude/hooks/test-readonly-bash.sh
+chmod +x ~/.claude/hooks/*.sh && ~/.claude/hooks/test-readonly-bash.sh
 ```
 
-The hook and the status line need `jq`.
+The hook needs `jq`.
 
 ## What's tracked
 
@@ -26,7 +26,6 @@ The `.gitignore` is an allowlist: everything is ignored unless it is explicitly 
 - `agents/`: global subagents (see the table below)
 - `hooks/`: hook scripts used by agents (`readonly-bash.sh` and its tests, see "Read-only agents")
 - `output-styles/`: output styles (`orchestrator.md`)
-- `statusline.sh`: the status line (model, directory, git branch, output style)
 - `.claude/CLAUDE.md`: instructions that apply only when working inside this repo
 - `.github/workflows/ci.yml`: CI that runs shellcheck, the hook tests, and schema validation of `settings.json`
 - `.gitignore`, `README.md` and `LICENSE`
