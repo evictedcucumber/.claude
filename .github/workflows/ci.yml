@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Shellcheck
-        run: shellcheck hooks/*.sh statusline.sh
+        run: shellcheck hooks/*.sh
       - name: Read-only hook tests
         run: hooks/test-readonly-bash.sh
       - name: Validate settings.json

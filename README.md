@@ -13,10 +13,10 @@ If `~/.claude` already exists, clone elsewhere and copy the tracked files over, 
 If you copy files instead of cloning, keep the scripts executable. A hook that can't run is a non-blocking error, so a non-executable `readonly-bash.sh` silently turns the read-only restriction off:
 
 ```bash
-chmod +x ~/.claude/hooks/*.sh ~/.claude/statusline.sh && ~/.claude/hooks/test-readonly-bash.sh
+chmod +x ~/.claude/hooks/*.sh && ~/.claude/hooks/test-readonly-bash.sh
 ```
 
-The hook and the status line need `jq`.
+The hook needs `jq`.
 
 ## What's tracked
 
@@ -26,7 +26,6 @@ The `.gitignore` is an allowlist: everything is ignored unless it is explicitly 
 - `agents/`: global subagents (see the table below)
 - `hooks/`: hook scripts used by agents (`readonly-bash.sh` and its tests, see "Read-only agents")
 - `output-styles/`: output styles (`orchestrator.md`)
-- `statusline.sh`: the status line (model, directory, git branch, output style)
 - `.claude/CLAUDE.md`: instructions that apply only when working inside this repo
 - `.github/workflows/ci.yml`: CI that runs shellcheck, the hook tests, and schema validation of `settings.json`
 - `.gitignore`, `README.md` and `LICENSE`
@@ -37,7 +36,7 @@ Transcripts, caches, session data and credentials (`projects/`, `remote/`, `sess
 
 The main session runs on Opus 5.5 as planner and reviewer. Subagents do the execution: Haiku 5.5 for lookups and fully specified mechanical steps, Sonnet 5.5 for everything that needs judgment.
 
-- `settings.json` sets `model` to Opus 5.5 and turns on the `Orchestrator` output style (`output-styles/orchestrator.md`). The style has Opus plan the work itself, delegate each step to the best-fitting subagent, and review every result (reading the diff and rechecking verification) before reporting.
+- `settings.json` sets `model` to Opus 5.5 and turns on the `Orchestrator` output style (`output-styles/orchestrator.md`). The style has Opus plan the work itself, delegate each step to the best-fitting subagent, coordinate the hand-offs between them, and review every result (reading the diff and rechecking verification) before reporting. It also lists standard sequences of agents for common tasks (bug, feature, dependency upgrade, security-sensitive change, performance, CI failure, docs).
 - `agents/` holds the global subagents. Each agent's model, effort, and turn limit (`maxTurns`) are set in its own frontmatter, which is the source of truth:
 
   | Agent | Model | Edits files | Use for |
@@ -52,6 +51,8 @@ The main session runs on Opus 5.5 as planner and reviewer. Subagents do the exec
   | `debugger` | Sonnet | yes | Root-causing bugs and failing tests |
   | `code-reviewer` | Sonnet | no | Reviewing changes for bugs |
   | `security-reviewer` | Sonnet | no | Security review |
+  | `optimizer` | Sonnet | yes | Performance work driven by measurements |
+  | `integrator` | Sonnet | yes | Merging branches from parallel or worktree agents |
   | `worker-fast` | Haiku | yes | Mechanical, fully specified edits; running a command and summarizing it |
   | `explorer-fast` | Haiku | no | Locating files, symbols, and call sites |
   | `researcher-fast` | Haiku | no | Looking up one external fact |
@@ -60,13 +61,22 @@ The main session runs on Opus 5.5 as planner and reviewer. Subagents do the exec
 
   Each Haiku agent names its Sonnet counterpart in its description, and the orchestrator moves a step there if the Haiku agent reports that it needs judgment or gets it wrong. Review, security, and debugging stay on Sonnet.
 
-- Every agent starts its report with a `STATUS: done | partial | blocked` line, which the orchestrator checks first. Agents that edit files don't commit, push, or switch branches unless the brief says so. Parallel writers need disjoint files or a worktree.
+- Agents that edit files don't commit, push, or switch branches unless the brief says so. Parallel writers need disjoint files or a worktree; `integrator` merges worktree branches back.
 - The orchestrator delegates by the shape of the work (self-contained steps that return a summary) and does small steps inline, while always doing review itself.
 - `modelSettings` runs Opus 5.5 at high effort, since planning and review need the deepest reasoning (Opus otherwise defaults to medium, the same as the workers). Try `xhigh` if planning quality matters more than speed.
 - `modelSettings` also sets Sonnet 5.5 and Haiku 5.5 to medium effort by default and caps both at high, for every subagent on those models (including built-ins and any agent that doesn't set `effort`). Anthropic's guidance for Haiku 5.5 is that `low` is more likely to skip a search or check in multi-step agent work, and that `xhigh`/`max` should be compared against Sonnet 5.5 first; a step that needs more than high on Haiku goes to Sonnet instead.
 - `CLAUDE_CODE_SUBAGENT_MODEL` sends custom subagents that don't set a `model` to Sonnet 5.5. Agents that set a `model` keep it.
 - `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` stops subagents from spawning their own subagents (the default allows 3 levels). Every result reaches Opus in one hop, so the orchestrator reviews raw output instead of a summary of a summary.
 - `GIT_OPTIONAL_LOCKS=0` stops read-only git commands such as `git status` from taking `.git/index.lock`, so a reviewer doesn't collide with a worker editing the same checkout.
+
+### How agents talk to each other
+
+`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` means subagents can't spawn their own subagents, and they don't message each other, so every exchange goes through the orchestrator, in a fixed format each way:
+
+- **Brief (orchestrator to agent).** The output style defines the fields: Goal, Context, Scope (the files the agent owns), Constraints, Done when, Verify with, Permissions, and Return. Facts from one agent reach another only after the orchestrator has checked them and rewritten them into Context; it never forwards a report or raw web content into a writer's brief, so injected instructions can't travel from a read-only agent to one that can edit files or run commands.
+- **Report (agent to orchestrator).** Every agent ends with the same `## Report` section. It starts with `STATUS: done | partial | blocked` and ends with `Unverified:` (what to spot-check), `Open:` (decisions needed, with options and a recommendation, or what is left of a `partial` step), and `Next:` (the agent it suggests for the next step). Agents stop as soon as they are blocked, and expect a SendMessage reply that resumes them with their context intact.
+- **Context packs.** `explorer` can return a short context pack (key files, conventions, build and test commands, gotchas) that the orchestrator pastes into several briefs, so parallel workers don't each rediscover the same area.
+- **Retries.** A step that fails twice on the same agent type is escalated, re-planned, or done inline rather than sent back a third time.
 
 ### Permissions
 
@@ -94,3 +104,5 @@ To skip orchestration for one session, switch the output style back to Default o
 ## Adding config
 
 To track a new file or directory, add a matching `!` rule to `.gitignore`.
+
+To add an agent, copy the closest existing one, keep its `## Report` section unchanged at the end, and add it to the tables in `output-styles/orchestrator.md` and this README.
