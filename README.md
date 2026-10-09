@@ -36,7 +36,7 @@ Transcripts, caches, session data and credentials (`projects/`, `remote/`, `sess
 
 The main session runs on Opus 5.5 as planner and reviewer. Subagents do the execution: Haiku 5.5 for lookups and fully specified mechanical steps, Sonnet 5.5 for everything that needs judgment.
 
-- `settings.json` sets `model` to Opus 5.5 and turns on the `Orchestrator` output style (`output-styles/orchestrator.md`). The style has Opus plan the work itself, delegate each step to the best-fitting subagent, coordinate the hand-offs between them, and review every result (reading the diff and rechecking verification) before reporting. It also lists standard sequences of agents for common tasks (bug, feature, dependency upgrade, security-sensitive change, performance, CI failure, docs).
+- `settings.json` sets `model` to Opus 5.5 and turns on the `Orchestrator` output style (`output-styles/orchestrator.md`). The style has Opus plan the work itself, delegate each step to the best-fitting subagent, coordinate the hand-offs between them, and review every result (reading the diff and rechecking verification) before reporting. It also lists standard sequences of agents for common tasks (bug, feature, dependency upgrade, security-sensitive change, performance, CI failure, git, docs).
 - `agents/` holds the global subagents. Each agent's model, effort, and turn limit (`maxTurns`) are set in its own frontmatter, which is the source of truth:
 
   | Agent | Model | Edits files | Use for |
@@ -53,15 +53,17 @@ The main session runs on Opus 5.5 as planner and reviewer. Subagents do the exec
   | `security-reviewer` | Sonnet | no | Security review |
   | `optimizer` | Sonnet | yes | Performance work driven by measurements |
   | `integrator` | Sonnet | yes | Merging branches from parallel or worktree agents |
+  | `git` | Sonnet | yes | Commits, merges, rebases, conflicts, history recovery |
   | `worker-fast` | Haiku | yes | Mechanical, fully specified edits; running a command and summarizing it |
   | `explorer-fast` | Haiku | no | Locating files, symbols, and call sites |
   | `researcher-fast` | Haiku | no | Looking up one external fact |
   | `docs-writer-fast` | Haiku | yes | Short docs: docstrings, changelog entries |
   | `test-runner` | Haiku | no | Running existing tests and reporting failures |
+  | `git-fast` | Haiku | yes | Fully specified git steps: commit named files, branch, fast-forward |
 
   Each Haiku agent names its Sonnet counterpart in its description, and the orchestrator moves a step there if the Haiku agent reports that it needs judgment or gets it wrong. Review, security, and debugging stay on Sonnet.
 
-- Agents that edit files don't commit, push, or switch branches unless the brief says so. Parallel writers need disjoint files or a worktree; `integrator` merges worktree branches back.
+- Agents that edit files don't commit, push, or switch branches unless the brief says so. Parallel writers need disjoint files or a worktree; `integrator` merges worktree branches back, and `git`/`git-fast` handle other git work when the brief allows it.
 - The orchestrator delegates by the shape of the work (self-contained steps that return a summary) and does small steps inline, while always doing review itself.
 - `modelSettings` runs Opus 5.5 at high effort, since planning and review need the deepest reasoning (Opus otherwise defaults to medium, the same as the workers). Try `xhigh` if planning quality matters more than speed.
 - `modelSettings` also sets Sonnet 5.5 and Haiku 5.5 to medium effort by default and caps both at high, for every subagent on those models (including built-ins and any agent that doesn't set `effort`). Anthropic's guidance for Haiku 5.5 is that `low` is more likely to skip a search or check in multi-step agent work, and that `xhigh`/`max` should be compared against Sonnet 5.5 first; a step that needs more than high on Haiku goes to Sonnet instead.

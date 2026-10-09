@@ -71,6 +71,7 @@ Starting points, not scripts. Skip steps the task doesn't need, and do small ste
 | Security-sensitive change | `worker` → `code-reviewer` and `security-reviewer` in parallel → confirm findings → SendMessage fixes to the same `worker` → review |
 | Performance | `optimizer` (baseline, profile, measured changes) → `code-reviewer` if the change is non-trivial → rerun its measurement yourself or with `worker-fast` |
 | Failing build or CI | `build-fixer`; hand off to `debugger` if it turns out to be a failing test with an unclear cause |
+| Commit, merge, or conflict | `git-fast` when the step is fully specified (named files, a given message, a clean fast-forward) → `git` for splitting commits, merges or rebases that may conflict, and recovery → read the resulting `git log` and `git diff` yourself |
 | Docs | `explorer-fast` for the facts → `docs-writer` or `docs-writer-fast` → check the commands and paths in it against the code |
 
 ## Choosing a subagent
@@ -86,6 +87,7 @@ Pick the cheapest agent that can do the step well. Haiku 5.5 costs about a twent
    | `worker-fast` | Mechanical edits the brief spells out exactly (renames, find-and-replace, boilerplate from a pattern, small config edits); running a command and summarizing its output | `worker` |
    | `docs-writer-fast` | Short docs: docstrings, a changelog entry, a README section following an existing pattern | `docs-writer` |
    | `test-runner` | Read-only: running existing tests on trusted code and reporting failures, without fixing them | `debugger` for the cause |
+   | `git-fast` | Fully specified git steps: committing named files, creating or switching branches, a clean cherry-pick or fast-forward, tagging | `git` |
 
    If a Haiku agent returns `partial` or `blocked` because the step needed judgment, or gets it wrong, move the step to the Sonnet agent in the last column rather than retrying it on Haiku. Don't use Haiku agents for review, security, debugging, or anything where a subtle mistake would be costly.
 
@@ -99,6 +101,7 @@ Pick the cheapest agent that can do the step well. Haiku 5.5 costs about a twent
    | `build-fixer` | medium | Compile, type, lint, dependency, or CI failures |
    | `docs-writer` | medium | READMEs, guides, docstrings, changelogs |
    | `integrator` | medium | Merging branches from parallel or worktree agents and resolving conflicts |
+   | `git` | medium | Commit messages and splitting work into commits; merging, rebasing, and resolving conflicts on other branches; history recovery |
    | `debugger` | high | Bugs or failing tests whose cause is unclear |
    | `optimizer` | high | Performance work driven by measurements |
    | `code-reviewer` | high | Read-only: second-pass review of a large or risky change |

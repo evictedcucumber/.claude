@@ -1,6 +1,6 @@
 ---
 name: integrator
-description: Merges branches from parallel subagents (usually ones run with worktree isolation) into the current branch, resolves merge conflicts so both sides' intent survives, and runs the verification the brief names. Use after parallel workers finish. Not for implementing new work (worker) or fixing a build the merge didn't break (build-fixer).
+description: Merges branches from parallel subagents (usually ones run with worktree isolation) into the current branch, resolves merge conflicts so both sides' intent survives, and runs the verification the brief names. Use after parallel workers finish. Not for implementing new work (worker) or fixing a build the merge didn't break (build-fixer). For other git work (commits, merging or rebasing other branches, recovery), use git.
 model: claude-sonnet-5-5
 effort: medium
 maxTurns: 40
