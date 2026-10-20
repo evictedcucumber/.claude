@@ -7,8 +7,6 @@
 !README.md
 !LICENSE
 !settings.json
-!keybindings.json
-!CLAUDE.md
 !.claude/
 !.claude/CLAUDE.md
 !.github/
@@ -18,10 +16,6 @@
 # Customizations
 !agents/
 !agents/**
-!commands/
-!commands/**
-!skills/
-!skills/**
 !hooks/
 !hooks/**
 !output-styles/
