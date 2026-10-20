@@ -21,11 +21,14 @@ if [[ ! -x "$hook" ]]; then
   fail=1
 fi
 
+# The project root is /repo, which doesn't need to exist (realpath -m).
+# run <expect> <mode> <command> [cwd] [project-dir]
 run() {
-  local expect=$1 mode=$2 cmd=$3 rc want
+  local expect=$1 mode=$2 cmd=$3 cwd=${4:-/repo} proj=${5:-/repo} rc want
   local -a args=()
   [[ "$mode" == tests ]] && args=(--allow-tests)
-  jq -n --arg c "$cmd" '{tool_input: {command: $c}}' | bash "$hook" "${args[@]}" >/dev/null 2>&1
+  jq -n --arg c "$cmd" --arg d "$cwd" '{cwd: $d, tool_input: {command: $c}}' \
+    | CLAUDE_PROJECT_DIR=$proj bash "$hook" "${args[@]}" >/dev/null 2>&1
   rc=$?
   [[ "$expect" == allow ]] && want=0 || want=2
   count=$((count + 1))
@@ -50,7 +53,9 @@ allow ro ls -la
 allow ro cat README.md
 allow ro grep -rn foo . 2>/dev/null | head -5
 allow ro ls 2>&1 | head
-allow ro cd /tmp && ls
+allow ro cd ./sub && ls
+block ro cd /tmp && ls
+block ro cd sub
 allow ro find . -name '*.md'
 allow ro find . -name "*.md" -type f
 allow ro find . -name \*.md
@@ -125,7 +130,7 @@ block ro git diff --{out,x}put=x
 block ro sort -{o,x} out in
 # parentheses: subshells, and zsh glob qualifiers that run code
 block ro ls *(e:x:)
-block ro jq 'map(.a)' f
+allow ro jq 'map(.a)' f
 block ro echo (
 # --- per-command flags
 block ro find . -delete
@@ -226,11 +231,191 @@ allow tests npm test -- --runInBand
 block tests npm test -- --updateSnapshot
 allow tests cargo test --workspace
 allow tests pnpm test
-# cd would point a runner at another tree
+# cd would point a runner at another tree, even in a separate call (the
+# Bash tool keeps its working directory)
 block tests cd /tmp/x && npm test
 block tests npm test; cd /tmp/x
-allow tests cd sub
+block tests cd sub
+# pytest --override-ini, --debug and --pastebin (and abbreviations)
+block tests pytest --override-ini=addopts=--junitxml=x
+block tests pytest --overr=addopts=x
+block tests pytest --debug=x.log
+block tests pytest --pastebin=all
+block tests python -m pytest --override-ini=cache_dir=x
+allow tests pytest -rA tests
+# paths outside the project
+block tests pytest /tmp/x
+block tests pytest ../other
+block tests pytest tests/../../other
+block tests pytest ~/x
+block tests go test ../other/...
+block tests npm test -- /tmp/x
+block tests npm test -- --testPathPattern=../x
+allow tests pytest tests/unit
+allow tests go test ./pkg/...
+# jest and vitest directory and module options, in any case
+block tests npm test -- --rootDir=/tmp/x
+block tests npm test -- --rootDir=x
+block tests npx --no jest --roots=x
+block tests npx --no vitest run --root x
+block tests npx --no vitest run -r x
+block tests npx --no jest --globalSetup=x.js
+block tests npx --no jest --setupFiles=x.js
+block tests npx --no jest --testRunner=x
+block tests npx --no jest --reporters=x
+block tests npx --no jest --transform=x
+block tests npx --no jest --testEnvironment=x
+block tests npx --no vitest run --environment=x
+# go linker and module-file options
+block tests go test -ldflags=-extld=x ./...
+block tests go test --ldflags=x ./...
+block tests go test -modfile=x.mod ./...
+# paths hidden after a second = or other separators; absolute paths inside the
+# session's cwd (/repo in these tests) are fine
+block tests npm test -- --node-option=require=/tmp/x.js
+block tests npm test -- --require=a:/tmp/x
+block tests npm test -- --x=file:///tmp/x
+allow tests pytest /repo/tests/test_a.py
+block tests pytest /repo/../x
+block tests pytest /repox/tests
+# jest -c and vitest -r with attached values; cargo -r is --release
+block tests npx --no jest -c/tmp/evil.js
+block tests npx --no jest -cx.js
+block tests npx --no vitest run -r../up
+block tests npm test -- -c x.js
+allow tests npm test -- -t name
+allow tests cargo test -r
+# kebab-case aliases and more module or file options
+block tests npx --no jest --global-setup=x
+block tests npx --no jest --root-dir=x
+block tests npx --no jest --testResultsProcessor=x
+block tests npx --no jest --collectCoverage
+block tests npx --no jest --collect-coverage
+block tests npx --no jest --cacheDirectory=x
+block tests npx --no vitest run --ui
+block tests npx --no vitest run --api
+# built-in reporters only
+allow tests npx --no vitest run --reporter=verbose
+allow tests npm test -- --reporters=default,summary
+block tests npx --no vitest run --reporter ./x.js
+block tests npx --no jest --reporters=./x.js
+# go and cargo options that write files or change go.mod
+block tests go test -c=true ./...
+block tests go test -testlogfile=x ./...
+block tests go test -test.gocoverdir=x ./...
+block tests go test -mod=mod ./...
+block tests go test -modcacherw ./...
+allow tests go test -count=1 -race ./...
+block tests cargo test -- --logfile out.txt
+# pytest plugins, @argfiles, --pyargs, plugin report writers
+block tests pytest -p antigravity
+block tests pytest -pantigravity
+block tests pytest -xpfoo
+allow tests pytest -p no:cacheprovider
+allow tests pytest -pno:cacheprovider
+block tests pytest @args.txt
+block tests pytest --pyargs pkg
+block tests pytest --html=x.html
+allow tests pytest -k test_connect
+allow tests pytest -rfE
+# quote-aware splitting: each command in a pipeline is checked on its own words
+allow tests pytest -q | tail -20
+allow tests npm test 2>&1 | head -50
+allow tests npm test | sort -r
+allow tests go test ./... | grep -v /site-packages/
+block tests pytest -q | sh
+allow ro grep 'a;b' file
+allow ro rg 'a|b' src
+allow ro grep '>' file
+allow ro echo "a && b"
+allow ro echo "a\"; rm x"
+block ro echo "a\\"; rm x
+block ro echo 'a\'; rm x
+allow ro echo a\;rm x
+allow ro ls >/dev/null 2>&1
+block ro ls >>/dev/null
+block ro echo hi 2>x
+block ro ls 2>&1&
+block ro ls # comment
+block ro echo 'unterminated
+block ro ls \
+block ro cat $[1+1]
+block ro "ls"
+block ro ls; "rm" x
+# allowlists: anything not listed is rejected
+block tests pytest --junit-prefix=x
+block tests pytest --rootd=x
+block tests pytest --confcutdir=x
+block tests npx --no jest --watch
+block tests npx --no jest --clearCache
+block tests go test -args -x
+block tests go test -mod mod ./...
+allow tests go test -mod=readonly ./...
+allow tests go test -v=true -timeout 30s ./...
+allow tests cargo test -p core --features x -- --nocapture --test-threads=1
+block tests cargo test --timings
+block tests cargo test -- -Z unstable-options
+allow tests npx --no jest --run-in-band --ci -t name src
+allow tests npx --no vitest run --pool=forks --no-isolate
+block tests npx --no vitest run --pool ./x.js
+# cd inside the project only, as ./dir or an absolute path
+allow tests cd ./sub
+allow tests cd .
+allow tests cd /repo/packages/a && npm test
+block tests cd ..
+block tests cd ../x
+block tests cd ./a/../..
+block tests cd /tmp
+block tests cd /repo/../tmp
+block tests cd
+block tests cd -
+block tests cd ~
+block tests cd -P ./a
+block tests cd ./a ./b
+# git -C and git from a directory outside the project
+block ro git -C /tmp/other log
+block ro git -C ../other diff
+allow ro git -C /repo/sub log
+# pytest -W imports the warning category's module
+block tests pytest -W ignore::os.path.X
+block tests pytest -Wignore::x.Y
+# more secret files
+block ro cat .env.development
+block ro cat app/.env.test
+block ro ls ~/.config/gcloud
+block ro cat ~/.azure/accessTokens.json
+block ro cat ~/.pgpass
+block ro cat ~/.cargo/credentials.toml
+block ro cat ~/.terraform.d/credentials.tfrc.json
 CASES
+
+# Working directory and project root. Each case is
+# "<expect> <mode> <cwd> <project-dir> <command>".
+while IFS= read -r line; do
+  [[ -z "$line" || "$line" == '#'* ]] && continue
+  read -r expect mode cwd proj cmd <<<"$line"
+  run "$expect" "$mode" "$cmd" "$cwd" "$proj"
+done <<'CASES'
+block tests /tmp /repo npm test
+block tests /tmp /repo cd ./x
+allow tests /repo/sub /repo pytest
+allow tests /repo/sub /repo pytest /repo/other/tests
+block tests /repo/sub /repo pytest ../x
+allow ro /tmp /repo ls
+block ro /tmp /repo git status
+block ro /tmp /repo cd ./x
+CASES
+
+# Symlinks inside the project that point outside it (needs GNU realpath -m).
+if realpath -m -- / >/dev/null 2>&1; then
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT
+  mkdir -p "$tmp/repo/sub"
+  ln -s /tmp "$tmp/repo/out"
+  run block tests "pytest $tmp/repo/out/x" "$tmp/repo" "$tmp/repo"
+  run block tests "cd $tmp/repo/out" "$tmp/repo" "$tmp/repo"
+  run allow tests "cd $tmp/repo/sub" "$tmp/repo" "$tmp/repo"
+fi
 
 if ((count < min_cases)); then
   echo "FAIL: only $count cases ran (expected at least $min_cases)"
