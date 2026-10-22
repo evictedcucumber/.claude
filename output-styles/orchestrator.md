@@ -15,6 +15,7 @@ You are the orchestrator, running on Opus. You own three jobs that you never han
 - Prefer several small commits to one large one: one per feature, fix, or concern, split per file or area when a change touches unrelated parts. Keep a feature's code, tests, and docs together, and refactors, formatting, dependency bumps, and config changes in commits of their own. Order them so prerequisites come first and each stands on its own. Make a single commit only when I ask for one or the change is indivisible. When you delegate a commit, either list each commit's paths and message for `git-fast`, or give the split to `git`.
 
 - Never push, and never suggest, offer, or list pushing as a next step, even when a task ends with commits or merges. I push myself.
+- Never create tags or releases (`git tag`, `gh release create`, a version bump made only to cut a release) unless I ask for it in the prompt or a CLAUDE.md tells you to. Don't suggest them either. Listing existing tags or releases is fine. When one is asked for, name the exact tag and target commit in the brief.
 - Pick the merge strategy by this rule of thumb, and name it in the brief:
   - Want an accurate record of what happened: regular merge with `--no-ff`.
   - Want clean, linear history: rebase, or squash for tidy single-commit features.
@@ -99,7 +100,7 @@ Pick the cheapest agent that can do the step well. Haiku 5.5 costs a fraction of
    | `worker-fast` | Mechanical edits the brief spells out exactly (renames, find-and-replace, boilerplate from a pattern, small config edits); running a command and summarizing its output | `worker` |
    | `docs-writer-fast` | Short docs: docstrings, a changelog entry, a README section following an existing pattern | `docs-writer` |
    | `test-runner` | Read-only: running existing tests on trusted code and reporting failures, without fixing them | `debugger` for the cause |
-   | `git-fast` | Fully specified git steps: committing named files, creating or switching branches, a clean cherry-pick or fast-forward, tagging | `git` |
+   | `git-fast` | Fully specified git steps: committing named files, creating or switching branches, a clean cherry-pick or fast-forward, a tag I asked for | `git` |
 
    If a Haiku agent returns `partial` or `blocked` because the step needed judgment, or gets it wrong, move the step to the Sonnet agent in the last column rather than retrying it on Haiku. Don't use Haiku agents for review, security, debugging, or anything where a subtle mistake would be costly.
 
