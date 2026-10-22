@@ -20,6 +20,8 @@
 !hooks/**
 !output-styles/
 !output-styles/**
+!skills/
+!skills/**
 
 # Never commit, even if re-included above
 .credentials.json
