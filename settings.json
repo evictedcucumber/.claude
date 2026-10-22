@@ -50,16 +50,10 @@
       "Read(//**/.env.staging)",
       "Read(**/.env.test)",
       "Read(//**/.env.test)",
-      "Bash(git push --force)",
-      "Bash(git push --force *)",
-      "Bash(git push * --force)",
-      "Bash(git push * --force *)",
-      "Bash(git push -f*)",
-      "Bash(git push * -f*)",
-      "Bash(git push -uf*)",
-      "Bash(git push * -uf*)",
-      "Bash(git push +*)",
-      "Bash(git push * +*)"
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(git -C * push)",
+      "Bash(git -C * push *)"
     ]
   }
 }
