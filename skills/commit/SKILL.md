@@ -18,7 +18,7 @@ Arguments: `$ARGUMENTS`. If they include `-- <paths>`, commit only those paths. 
 ## Steps
 
 1. Run `git rev-parse --show-toplevel`, `git branch --show-current`, `git status --short`, and `git log --oneline -n 10`. If nothing is uncommitted, say so and stop. If HEAD is detached, or a merge, rebase, or cherry-pick is in progress, stop and tell the user instead of committing.
-2. Read the repo's commit convention: the CLAUDE.md files for this project and the recent `git log` (for example Conventional Commits). Follow it.
+2. Write every message in [Conventional Commits](https://www.conventionalcommits.org/) format, in every repo, even if its history doesn't: `<type>(<optional scope>): <subject>`, with a type such as `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, or `revert`, `!` before the colon and a `BREAKING CHANGE:` footer for breaking changes. Read the project's CLAUDE.md files and the recent `git log` for the rest: scopes in use, tense, length, and extra rules. If a message was given that doesn't follow the format, rewrite it to follow it, keeping its meaning.
 3. Read `git diff` and `git diff --staged` (`--stat` first if large), and look at untracked files from `git status`.
    - If something is already staged and no paths were given, commit only what is staged.
    - Otherwise commit all tracked changes and untracked files that belong with them. Skip anything that looks like a build artifact, cache, log, local env file, or editor junk, and mention what you skipped.

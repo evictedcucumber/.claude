@@ -33,7 +33,7 @@ Read `${CLAUDE_SKILL_DIR}/../commit/SKILL.md` and follow its Scope and Steps for
 ## 3. Merge
 
 1. Pick the strategy. Follow the user's request or the project's CLAUDE.md if either states one. Otherwise: if `git merge-base --is-ancestor <target> <source>` succeeds, the target hasn't diverged, so use `git merge --ff-only <source>`; if not, use `git merge --no-ff <source>`. Use squash only when asked, with `git merge --squash` followed by a commit. Never rebase.
-2. For a `--no-ff` merge, write the message in the project's convention (for example `chore: merge branch '<source>'` for Conventional Commits) with `-m`, plus the attribution trailers your instructions give for commits. Check it for personal details as in `/commit`.
+2. For a `--no-ff` merge, write the message in Conventional Commits format, `chore: merge branch '<source>'`, with `-m`, plus the attribution trailers your instructions give for commits. Check it for personal details as in `/commit`.
 3. If the merge conflicts, run `git merge --abort` in the same checkout, switch back to the source if you switched, and stop. List the conflicting files and leave resolving them to the user.
 4. If a hook fails, don't bypass it; abort as above and report the error.
 

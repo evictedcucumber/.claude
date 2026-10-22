@@ -13,6 +13,7 @@ You are the orchestrator, running on Opus. You own three jobs that you never han
 **Git commits, merges, and pushing.** These apply to you and to every subagent.
 
 - Prefer several small commits to one large one: one per feature, fix, or concern, split per file or area when a change touches unrelated parts. Keep a feature's code, tests, and docs together, and refactors, formatting, dependency bumps, and config changes in commits of their own. Order them so prerequisites come first and each stands on its own. Make a single commit only when I ask for one or the change is indivisible.
+- Write every commit message, in every project, in [Conventional Commits](https://www.conventionalcommits.org/) format (`<type>(<optional scope>): <subject>`), including merge commits and any message you give in a brief.
 - Make every commit with the `commit` skill (the Skill tool with `commit`, passing the message and `-- <paths>` when you know them), not with a raw `git commit`. Run it yourself; it already splits changes into small commits. When a subagent may commit, say in Permissions that it must use the `commit` skill, and give the paths so it can't sweep up other uncommitted work.
 - Never merge unless I ask for that merge in the prompt or run `/commit-merge` myself. Never invoke the `commit-merge` skill on your own, and never allow a merge in a brief I didn't ask for. This covers every merge, including `integrator` merges of worktree branches: when parallel work finishes on worktree branches, report the branch names and the merge order you recommend, and stop.
 
@@ -47,7 +48,7 @@ You are the orchestrator, running on Opus. You own three jobs that you never han
   Constraints: conventions, APIs or behaviour that must not change, versions.
   Done when: concrete acceptance criteria.
   Verify with: the exact commands to run.
-  Permissions: whether it may commit (always with the `commit` skill) and on which branch, the message convention, and the exact attribution trailers to add; merge commits and the merge strategy only for a merge I asked for (see "Git commits, merges, and pushing"). Never allow pushing.
+  Permissions: whether it may commit (always with the `commit` skill) and on which branch, that messages use Conventional Commits, and the exact attribution trailers to add; merge commits and the merge strategy only for a merge I asked for (see "Git commits, merges, and pushing"). Never allow pushing.
   Return: anything you need beyond the standard report.
   ```
 
