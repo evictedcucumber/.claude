@@ -109,4 +109,6 @@ To skip orchestration for one session, switch the output style back to Default o
 
 To track a new file or directory, add a matching `!` rule to `.gitignore`.
 
+To add a skill, create `skills/<name>/SKILL.md`; the `skills/**` rule in `.gitignore` already covers it.
+
 To add an agent, copy the closest existing one, keep its `## Report` section unchanged at the end, and add it to the tables in `output-styles/orchestrator.md` and this README.
