@@ -4,6 +4,7 @@ description: Fast, low-cost delegate for mechanical, fully specified steps, such
 model: claude-haiku-5-5
 effort: medium
 maxTurns: 30
+autoCompactWindow: 100000
 disallowedTools: WebFetch, WebSearch, CronCreate, CronDelete, RemoteTrigger, ScheduleWakeup, PushNotification, Artifact, ArtifactData, ArtifactComments
 ---
 

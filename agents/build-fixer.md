@@ -4,6 +4,7 @@ description: Gets a build, type check, linter, or CI job passing. Use for compil
 model: claude-sonnet-5-5
 effort: medium
 maxTurns: 50
+autoCompactWindow: 150000
 disallowedTools: WebFetch, WebSearch, CronCreate, CronDelete, RemoteTrigger, ScheduleWakeup, PushNotification, Artifact, ArtifactData, ArtifactComments
 color: yellow
 ---

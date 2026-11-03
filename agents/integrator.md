@@ -4,6 +4,7 @@ description: Merges branches from parallel subagents (usually ones run with work
 model: claude-sonnet-5-5
 effort: medium
 maxTurns: 40
+autoCompactWindow: 150000
 disallowedTools: WebFetch, WebSearch, CronCreate, CronDelete, RemoteTrigger, ScheduleWakeup, PushNotification, Artifact, ArtifactData, ArtifactComments
 color: yellow
 ---

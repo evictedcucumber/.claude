@@ -4,6 +4,7 @@ description: External research. Use to look up library, framework, API, or tool 
 model: claude-sonnet-5-5
 effort: medium
 maxTurns: 30
+autoCompactWindow: 150000
 tools: WebSearch, WebFetch
 color: blue
 ---

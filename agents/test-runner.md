@@ -4,6 +4,7 @@ description: Fast, low-cost run of a project's existing tests, or a named subset
 model: claude-haiku-5-5
 effort: medium
 maxTurns: 15
+autoCompactWindow: 100000
 tools: Read, Grep, Glob, Bash
 color: green
 hooks:

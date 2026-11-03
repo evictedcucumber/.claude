@@ -4,6 +4,7 @@ description: Fast, low-cost read-only lookups in the codebase. Use to locate fil
 model: claude-haiku-5-5
 effort: medium
 maxTurns: 20
+autoCompactWindow: 100000
 tools: Read, Grep, Glob, Bash
 color: cyan
 hooks:

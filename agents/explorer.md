@@ -4,6 +4,7 @@ description: Read-only codebase exploration. Use to find where something is impl
 model: claude-sonnet-5-5
 effort: medium
 maxTurns: 30
+autoCompactWindow: 150000
 tools: Read, Grep, Glob, Bash
 color: cyan
 hooks:

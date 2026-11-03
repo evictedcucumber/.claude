@@ -4,6 +4,7 @@ description: Fast, low-cost writing of short, well-defined documentation, such a
 model: claude-haiku-5-5
 effort: medium
 maxTurns: 20
+autoCompactWindow: 100000
 disallowedTools: WebFetch, WebSearch, CronCreate, CronDelete, RemoteTrigger, ScheduleWakeup, PushNotification, Artifact, ArtifactData, ArtifactComments
 color: pink
 ---

@@ -4,6 +4,7 @@ description: Default delegate for well-scoped execution steps such as implementi
 model: claude-sonnet-5-5
 effort: medium
 maxTurns: 40
+autoCompactWindow: 150000
 disallowedTools: WebFetch, WebSearch, CronCreate, CronDelete, RemoteTrigger, ScheduleWakeup, PushNotification, Artifact, ArtifactData, ArtifactComments
 ---
 

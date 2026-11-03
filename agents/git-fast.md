@@ -4,6 +4,7 @@ description: Fast, low-cost git operations the brief fully specifies, such as co
 model: claude-haiku-5-5
 effort: medium
 maxTurns: 20
+autoCompactWindow: 100000
 disallowedTools: WebFetch, WebSearch, CronCreate, CronDelete, RemoteTrigger, ScheduleWakeup, PushNotification, Artifact, ArtifactData, ArtifactComments
 color: yellow
 ---

@@ -45,6 +45,7 @@
   },
   "model": "claude-opus-5-5",
   "outputStyle": "Orchestrator",
+  "autoCompactWindow": 200000,
   "modelSettings": {
     "claude-opus-5-5": {
       "effortLevel": "high"

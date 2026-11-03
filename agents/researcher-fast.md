@@ -4,6 +4,7 @@ description: Fast, low-cost external lookup of a single fact, such as the latest
 model: claude-haiku-5-5
 effort: medium
 maxTurns: 15
+autoCompactWindow: 100000
 tools: WebSearch, WebFetch
 color: blue
 ---
