@@ -17,6 +17,8 @@ jobs:
         run: shellcheck hooks/*.sh
       - name: Read-only hook tests
         run: hooks/test-readonly-bash.sh
+      - name: Built-in agent context hook output
+        run: hooks/builtin-agent-context.sh | jq -e '.hookSpecificOutput.hookEventName == "SubagentStart"'
       - name: Validate settings.json
         run: |
           pipx run check-jsonschema==0.38.2 \

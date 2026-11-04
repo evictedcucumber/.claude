@@ -58,5 +58,18 @@
     }
   },
   "agentPushNotifEnabled": false,
-  "inputNeededNotifEnabled": false
+  "inputNeededNotifEnabled": false,
+  "hooks": {
+    "SubagentStart": [
+      {
+        "matcher": "Explore|Plan",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.claude/hooks/builtin-agent-context.sh\""
+          }
+        ]
+      }
+    ]
+  }
 }
